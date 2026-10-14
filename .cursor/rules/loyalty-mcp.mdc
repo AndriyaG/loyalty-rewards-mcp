@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+---
+description: Loyalty Rewards MCP project constraints
+alwaysApply: true
+---
+- Local-only portfolio demo. No hosting, Render, Docker, cloud, public endpoint, authentication, database, frontend, payment integration or real data.
+- Python 3.11+. Use uv with a venv in .venv and requirements.txt via `uv pip install -r requirements.txt`. Do not create pyproject.toml, use `uv add`, or create uv.lock.
+- MCP server and client use the standalone `fastmcp` package at the version pinned in requirements.txt. Read the installed package's docs/source before coding. Never import from the official `mcp` package's `mcp.server.fastmcp` or mix APIs from other versions.
+- Transport is stdio. The server must never print to stdout; log to stderr only.
+- Exactly 8 MCP tools. Do not add more.
+- Secrets: never open, read, print or log .env. Never ask me to paste keys. Load GROQ_API_KEY via python-dotenv/os.environ. .env.example holds placeholders only.
+- Never run git commit, git push or any remote git command. I do that manually.
+- All data is fabricated. Label every invented business rule as a demo assumption.
+- Keep code beginner-readable. Ask before adding dependencies.
+- Never claim something runs or passes unless you actually ran it.
