@@ -1,4 +1,5 @@
 fastmcp==4.1.0
+groq==1.7.0
 python-dotenv==1.2.4
 pytest==9.1.1
 pytest-asyncio==1.4.0
