@@ -7,9 +7,10 @@ chat agent that answers questions by calling the server's tools through Groq.
 > **Demo only.**
 > - **All data is fabricated.** Customers, rewards, schemes, campaigns and every
 >   business rule are invented. Nothing describes a real person or company.
-> - **Everything runs locally.** The server talks over stdio on your machine.
->   There is no hosting, public endpoint, database, authentication or payment.
->   The only network call is the agent's request to the Groq API.
+> - **Everything runs locally.** The server listens on `http://127.0.0.1:8000/mcp`
+>   (localhost only, not reachable from other machines). There is no hosting,
+>   public endpoint, database, authentication or payment. The only external
+>   network call is the agent's request to the Groq API..
 > - **GitHub stores source code only.** Nothing is deployed from this repo, and
 >   your `.env` (with your API key) is gitignored and never committed.
 
@@ -23,20 +24,20 @@ chat agent that answers questions by calling the server's tools through Groq.
   "Loyalty Rewards  <--- answer or tool calls ---------------  (LLM)
    Assistant"
        |
-       |  MCP over stdio (fastmcp Client starts server.py as a subprocess)
+       |  MCP over Streamable HTTP (http://127.0.0.1:8000/mcp)
        v
-  server.py  (FastMCP, 8 tools, logs to stderr -> server.log)
+  server.py  (FastMCP, 8 tools, run separately, logs to its terminal)
        |
        |  plain Python import
        v
   loyalty_data.py  (fabricated in-memory data; redemption requests reset on restart)
 ```
 
-The MCP Inspector can connect to `server.py` the same way, in place of the agent.
+The MCP Inspector can connect to the same URL, in place of the agent.
 
 ## Project layout
 
-- `server.py` - FastMCP server with the 8 tools (stdio transport, logs to stderr)
+- `server.py` - FastMCP server with the 8 tools (HTTP transport on localhost:8000)
 - `loyalty_data.py` - fabricated demo data
 - `agent_client.py` - terminal chat agent (Groq SDK + fastmcp `Client`)
 - `tests/` - pytest tests (offline; no Groq key needed)
@@ -108,21 +109,21 @@ npx @modelcontextprotocol/inspector@0.15.0 python server.py   # Node 18+
 npx @modelcontextprotocol/inspector python server.py          # Node 22.7.5+
 ```
 
-In the Inspector UI choose Transport `STDIO`, Command `python`, Args
-`server.py`, then click Connect and open the Tools tab. Run it with the venv
-activated so `python` has `fastmcp` installed.
-
-You can also start the server directly with `python server.py`. It waits
-silently on stdio for an MCP client; press Ctrl+C to stop.
+Start the server in one terminal (`python server.py`), then run
+`npx @modelcontextprotocol/inspector`. In the UI choose Transport
+`Streamable HTTP`, URL `http://127.0.0.1:8000/mcp`, and click Connect.
 
 ## Run the agent
 
+Terminal 1 (leave it running):
+```powershell
+python server.py
+```
+Terminal 2:
 ```powershell
 python agent_client.py
 ```
-
-Type a question, or `exit` (or Ctrl+C) to quit. The server's log output goes to
-`server.log` (gitignored).
+Server logs appear in terminal 1.
 
 ### Example questions
 
@@ -139,7 +140,7 @@ Type a question, or `exit` (or Ctrl+C) to quit. The server's log output goes to
 
 ### How a question is answered
 
-1. `agent_client.py` starts `server.py` over stdio with the fastmcp `Client`
+1. `agent_client.py` connects to the running server at http://127.0.0.1:8000/mcp".
    and lists its tools. Each tool's MCP input schema is passed to Groq as a
    function definition, unchanged.
 2. Your question, the conversation so far and the tools go to Groq.

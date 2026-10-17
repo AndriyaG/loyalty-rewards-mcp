@@ -24,11 +24,10 @@ from pathlib import Path
 import groq
 from dotenv import load_dotenv
 from fastmcp import Client
-from fastmcp.client.transports import PythonStdioTransport
+from fastmcp.client.transports import StreamableHttpTransport
 
 ASSISTANT_NAME = "Loyalty Rewards Assistant"
-SERVER_PATH = Path(__file__).parent / "server.py"
-SERVER_LOG = Path(__file__).parent / "server.log"
+SERVER_URL = "http://127.0.0.1:8000/mcp"
 
 MAX_ITERATIONS = 6
 MAX_COMPLETION_TOKENS = 1024
@@ -252,7 +251,7 @@ async def chat_loop(groq_client, mcp_client, model) -> int:
     groq_tools = mcp_tools_to_groq(tools)
     known_tool_names = {tool.name for tool in tools}
 
-    print(f"{ASSISTANT_NAME} (model: {model}, {len(tools)} tools from {SERVER_PATH.name})")
+    print(f"{ASSISTANT_NAME} (model: {model}, {len(tools)} tools from {SERVER_URL})")
     print("Ask about customers, rewards, schemes or campaigns, e.g. 'What can CUST-002 redeem?'")
     print('All data is fabricated. Redemptions are simulated. Type "exit" or press Ctrl+C to quit.\n')
 
@@ -302,15 +301,14 @@ async def main() -> int:
     connected = False
     try:
         # Server stderr goes to server.log so its logs don't clutter the chat.
-        transport = PythonStdioTransport(SERVER_PATH, log_file=SERVER_LOG)
+        transport = StreamableHttpTransport(SERVER_URL)
         async with Client(transport) as mcp_client:
             connected = True
             return await chat_loop(groq_client, mcp_client, model)
     except Exception as error:
         if connected:
             raise
-        print(f"Could not start the MCP server ({SERVER_PATH.name}): {type(error).__name__}: {error}")
-        print(f"Check {SERVER_LOG.name}, or run 'python {SERVER_PATH.name}' to see the server's error.")
+        print(f"Could not reach the MCP server at {SERVER_URL}. Check your server.py is running.")
         return 1
 
 

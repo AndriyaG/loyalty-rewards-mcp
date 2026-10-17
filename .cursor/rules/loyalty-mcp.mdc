@@ -8,7 +8,7 @@ alwaysApply: true
 - Local-only portfolio demo. No hosting, Render, Docker, cloud, public endpoint, authentication, database, frontend, payment integration or real data.
 - Python 3.11+. Use uv with a venv in .venv and requirements.txt via `uv pip install -r requirements.txt`. Do not create pyproject.toml, use `uv add`, or create uv.lock.
 - MCP server and client use the standalone `fastmcp` package at the version pinned in requirements.txt. Read the installed package's docs/source before coding. Never import from the official `mcp` package's `mcp.server.fastmcp` or mix APIs from other versions.
-- Transport is stdio. The server must never print to stdout; log to stderr only.
+- - Transport is Streamable HTTP, bound to 127.0.0.1 only (never 0.0.0.0), endpoint http://127.0.0.1:8000/mcp. No authentication, no hosting. Optional stdio fallback via an environment variable.
 - Exactly 8 MCP tools. Do not add more.
 - Secrets: never open, read, print or log .env. Never ask me to paste keys. Load GROQ_API_KEY via python-dotenv/os.environ. .env.example holds placeholders only.
 - Never run git commit, git push or any remote git command. I do that manually.
