@@ -307,4 +307,4 @@ def create_redemption_request(
 if __name__ == "__main__":
     logger.info("Starting Loyalty Rewards MCP server over stdio")
     # The banner triggers a PyPI version check; this demo stays offline.
-    mcp.run(transport="stdio", show_banner=False)
+    mcp.run(transport="http", host="127.0.0.1", port=8000, show_banner=False)
